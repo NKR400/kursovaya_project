@@ -243,10 +243,6 @@ curl -X GET http://localhost:8080/api/complaints
 curl -X POST http://localhost:8080/run_etl
 ```
 
---- 
-**Email** – ваш.email@example.com  
-**Проект** – [https://github.com/yourusername/complaints-system](https://github.com/yourusername/complaints-system)
-
 ---
 
 *Этот проект разработан как практическая часть курсовой работы по теме "Реализация хранилища данных для системы управления качеством продукции".*
