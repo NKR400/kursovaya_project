@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналитика рекламаций</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            min-height: 400px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+        
+        .error {
+            color: #dc3545;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">📊 Аналитика рекламаций</a>
+            <div class="navbar-nav flex-row">
+                <a class="nav-link me-3" href="/">Главная</a>
+                <a class="nav-link" href="/add">Добавить</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="mb-4">📈 Визуализация данных о рекламациях</h3>
+                        
+                        <!-- Блок статистики -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 id="total-complaints">0</h5>
+                                        <small class="text-muted">Всего рекламаций</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 id="new-complaints">0</h5>
+                                        <small class="text-muted">Новых</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 id="today-complaints">0</h5>
+                                        <small class="text-muted">Сегодня</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 id="top-reason-count">0</h5>
+                                        <small class="text-muted" id="top-reason-text">Топ причина</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Графики -->
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Топ причин возвратов</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="top-reasons-chart" class="chart-container">
+                                            <div class="loading">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Загрузка...</span>
+                                                </div>
+                                                <p class="mt-2">Загрузка данных...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Статистика</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="live-stats">
+                                            <div class="loading">
+                                                <div class="spinner-border spinner-border-sm" role="status">
+                                                    <span class="visually-hidden">Загрузка...</span>
+                                                </div>
+                                                <p>Загрузка статистики...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Динамика рекламаций по месяцам</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="monthly-trend-chart" class="chart-container">
+                                            <div class="loading">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Загрузка...</span>
+                                                </div>
+                                                <p class="mt-2">Загрузка данных...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Рекламации по продуктам</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="products-chart" class="chart-container">
+                                            <div class="loading">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Загрузка...</span>
+                                                </div>
+                                                <p class="mt-2">Загрузка данных...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Кнопка обновления -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <button onclick="loadAllCharts()" class="btn btn-primary">
+                                            <span id="refresh-icon">🔄</span> Обновить все графики
+                                        </button>
+                                        <button onclick="runETL()" class="btn btn-outline-primary ms-2">
+                                            🔄 Запустить ETL
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-muted">Последнее обновление: <span id="last-update">-</span></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Функция для форматирования даты
+        function formatDateTime() {
+            const now = new Date();
+            return now.toLocaleString('ru-RU');
+        }
+
+        // Функция для отображения ошибки
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="error">
+                    <div>⚠️ Ошибка загрузки</div>
+                    <small>${message}</small>
+                    <button onclick="loadChart('${containerId.replace('-chart', '')}')" class="btn btn-sm btn-outline-danger mt-2">
+                        Повторить
+                    </button>
+                </div>
+            `;
+        }
+
+        // Функция для скрытия загрузки
+        function hideLoading(containerId) {
+            const loading = document.querySelector(`#${containerId} .loading`);
+            if (loading) {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Загрузка графика топ причин
+        function loadTopReasonsChart() {
+            const container = 'top-reasons-chart';
+            
+            fetch('/api/charts/top_reasons')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading(container);
+                    
+                    // Если вернулась строка JSON
+                    if (typeof data === 'string') {
+                        try {
+                            data = JSON.parse(data);
+                        } catch(e) {
+                            throw new Error('Invalid JSON response');
+                        }
+                    }
+                    
+                    // Если есть ошибка в данных
+                    if (data.error) {
+                        showError(container, data.error);
+                        return;
+                    }
+                    
+                    // Проверяем, что данные есть
+                    if (!data.data || data.data.length === 0) {
+                        document.getElementById(container).innerHTML = `
+                            <div class="text-center text-muted py-5">
+                                <h5>📊 Нет данных</h5>
+                                <p>Добавьте рекламации или запустите ETL</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    Plotly.newPlot(container, data.data, data.layout || {}, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Error loading top reasons:', error);
+                    showError(container, error.message);
+                });
+        }
+
+        // Загрузка графика по месяцам
+        function loadMonthlyTrendChart() {
+            const container = 'monthly-trend-chart';
+            
+            fetch('/api/charts/monthly_trend')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading(container);
+                    
+                    if (typeof data === 'string') {
+                        try {
+                            data = JSON.parse(data);
+                        } catch(e) {
+                            throw new Error('Invalid JSON response');
+                        }
+                    }
+                    
+                    if (data.error) {
+                        showError(container, data.error);
+                        return;
+                    }
+                    
+                    if (!data.data || data.data.length === 0) {
+                        document.getElementById(container).innerHTML = `
+                            <div class="text-center text-muted py-5">
+                                <h5>📈 Нет данных</h5>
+                                <p>Нет данных по месяцам</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    Plotly.newPlot(container, data.data, data.layout || {}, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Error loading monthly trend:', error);
+                    showError(container, error.message);
+                });
+        }
+
+        // Загрузка графика по продуктам
+        function loadProductsChart() {
+            const container = 'products-chart';
+            
+            fetch('/api/charts/products')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading(container);
+                    
+                    if (typeof data === 'string') {
+                        try {
+                            data = JSON.parse(data);
+                        } catch(e) {
+                            throw new Error('Invalid JSON response');
+                        }
+                    }
+                    
+                    if (data.error) {
+                        showError(container, data.error);
+                        return;
+                    }
+                    
+                    if (!data.data || data.data.length === 0) {
+                        document.getElementById(container).innerHTML = `
+                            <div class="text-center text-muted py-5">
+                                <h5>📦 Нет данных</h5>
+                                <p>Нет данных по продуктам</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    Plotly.newPlot(container, data.data, data.layout || {}, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Error loading products chart:', error);
+                    showError(container, error.message);
+                });
+        }
+
+        // Загрузка статистики
+        function loadStats() {
+            fetch('/api/stats')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Обновляем значения на странице
+                    document.getElementById('total-complaints').textContent = data.total_complaints || 0;
+                    document.getElementById('new-complaints').textContent = data.new_complaints || 0;
+                    document.getElementById('today-complaints').textContent = data.today_complaints || 0;
+                    document.getElementById('top-reason-count').textContent = data.top_reason_count || 0;
+                    document.getElementById('top-reason-text').textContent = data.top_reason || 'Топ причина';
+                    
+                    // Обновляем блок статистики
+                    document.getElementById('live-stats').innerHTML = `
+                        <div class="mb-3">
+                            <strong>Всего рекламаций:</strong>
+                            <span class="badge bg-primary float-end">${data.total_complaints || 0}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Новых:</strong>
+                            <span class="badge bg-warning float-end">${data.new_complaints || 0}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Решено:</strong>
+                            <span class="badge bg-success float-end">${data.resolved_complaints || 0}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Сегодня:</strong>
+                            <span class="badge bg-info float-end">${data.today_complaints || 0}</span>
+                        </div>
+                        <div>
+                            <strong>Топ причина:</strong><br>
+                            <small class="text-muted">${data.top_reason || 'Нет данных'}</small>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                    document.getElementById('live-stats').innerHTML = `
+                        <div class="text-danger">
+                            <small>Ошибка загрузки статистики</small>
+                        </div>
+                    `;
+                });
+        }
+
+        // Загрузка всех графиков
+        function loadAllCharts() {
+            const btn = document.querySelector('button[onclick="loadAllCharts()"]');
+            const icon = document.getElementById('refresh-icon');
+            
+            // Показываем анимацию загрузки
+            btn.disabled = true;
+            icon.textContent = '⏳';
+            
+            // Загружаем все компоненты
+            loadStats();
+            loadTopReasonsChart();
+            loadMonthlyTrendChart();
+            loadProductsChart();
+            
+            // Обновляем время последнего обновления
+            document.getElementById('last-update').textContent = formatDateTime();
+            
+            // Возвращаем кнопку в нормальное состояние через 2 секунды
+            setTimeout(() => {
+                btn.disabled = false;
+                icon.textContent = '🔄';
+            }, 2000);
+        }
+
+        // Запуск ETL
+        function runETL() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Запуск ETL...';
+            
+            fetch('/run_etl', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message || 'ETL выполнен');
+                    if (data.status === 'success') {
+                        // Обновляем графики после ETL
+                        setTimeout(loadAllCharts, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Ошибка: ' + error.message);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Запустить ETL';
+                });
+        }
+
+        // Загрузка всех данных при открытии страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllCharts();
+            document.getElementById('last-update').textContent = formatDateTime();
+            
+            // Автообновление каждые 30 секунд
+            setInterval(loadStats, 30000);
+        });
+
+        // Добавляем обработчик ошибок Plotly
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+    </script>
+</body>
+</html>
